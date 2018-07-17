@@ -552,7 +552,7 @@ public class ExtensionLoader<T> {
         return classes;
     }
 
-    //扫描classpath, 读取META-INF下的配置文件, 加载该interface对应的所有的扩展点
+    //扫描classpath, 读取META-INF下的配置文件, 加载该interface对应的所有的扩展点实现类
     // synchronized in getExtensionClasses
     private Map<String, Class<?>> loadExtensionClasses() {
         final SPI defaultAnnotation = type.getAnnotation(SPI.class);
@@ -716,6 +716,11 @@ public class ExtensionLoader<T> {
         }
     }
 
+    /**
+     * 如果没有自适应的扩展点，调用createAdaptiveExtensionClass生成一个自适应的类
+     *
+     * @return
+     */
     private Class<?> getAdaptiveExtensionClass() {
         getExtensionClasses();
         if (cachedAdaptiveClass != null) {
