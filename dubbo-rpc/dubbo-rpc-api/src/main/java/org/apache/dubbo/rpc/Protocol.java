@@ -23,6 +23,7 @@ import org.apache.dubbo.common.extension.SPI;
 /**
  * Protocol. (API/SPI, Singleton, ThreadSafe)
  */
+//SPI注解标识该接口是一个扩展点
 @SPI("dubbo")
 public interface Protocol {
 
