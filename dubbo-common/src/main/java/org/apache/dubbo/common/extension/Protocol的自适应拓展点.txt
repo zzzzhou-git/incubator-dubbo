@@ -14,7 +14,7 @@ public class Protocol$Adpative implements com.alibaba.dubbo.rpc.Protocol {
     }
 
     public com.alibaba.dubbo.rpc.Exporter export(com.alibaba.dubbo.rpc.Invoker arg0) throws com.alibaba.dubbo.rpc.Invoker {
-        if (arg0 == null) throw new IllegalArgumentException("com.alibaba.dubbo.rpc.Invoker argument == null");
+        if (arg0 == null) throw new IllegalArgumentException("com.alibaba.dub bo.rpc.Invoker argument == null");
         if (arg0.getUrl() == null) throw new IllegalArgumentException("com.alibaba.dubbo.rpc.Invoker argument getUrl() == null");com.alibaba.dubbo.common.URL url = arg0.getUrl();
 
         //默认的rpc方案就是dubbo自身的方案

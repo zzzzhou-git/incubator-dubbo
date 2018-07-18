@@ -30,37 +30,19 @@ import org.apache.dubbo.config.invoker.DelegateProviderMetaDataInvoker;
 import org.apache.dubbo.config.model.ApplicationModel;
 import org.apache.dubbo.config.model.ProviderModel;
 import org.apache.dubbo.config.support.Parameter;
-import org.apache.dubbo.rpc.Exporter;
-import org.apache.dubbo.rpc.Invoker;
-import org.apache.dubbo.rpc.Protocol;
-import org.apache.dubbo.rpc.ProxyFactory;
-import org.apache.dubbo.rpc.ServiceClassHolder;
+import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.ConfiguratorFactory;
 import org.apache.dubbo.rpc.service.GenericService;
 import org.apache.dubbo.rpc.support.ProtocolUtils;
 
 import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.net.*;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.dubbo.common.utils.NetUtils.LOCALHOST;
-import static org.apache.dubbo.common.utils.NetUtils.getAvailablePort;
-import static org.apache.dubbo.common.utils.NetUtils.getLocalHost;
-import static org.apache.dubbo.common.utils.NetUtils.isInvalidLocalHost;
-import static org.apache.dubbo.common.utils.NetUtils.isInvalidPort;
+import static org.apache.dubbo.common.utils.NetUtils.*;
 
 /**
  * ServiceConfig
@@ -71,6 +53,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
     private static final long serialVersionUID = 3033787999037024738L;
 
+    //拓展点说明：https://blog.csdn.net/zhangw1236/article/details/65630952
     private static final Protocol protocol = ExtensionLoader.getExtensionLoader(Protocol.class).getAdaptiveExtension();
 
     private static final ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
