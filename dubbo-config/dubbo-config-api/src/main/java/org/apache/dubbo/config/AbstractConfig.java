@@ -39,6 +39,8 @@ import java.util.regex.Pattern;
  * Utility methods and public methods for parsing configuration
  *
  * @export
+ *
+ *  抽象配置类，除了 ArgumentConfig ，所有的配置类都继承该类。 AbstractConfig 主要提供配置解析与校验相关的工具方法
  */
 public abstract class AbstractConfig implements Serializable {
 
@@ -76,6 +78,7 @@ public abstract class AbstractConfig implements Serializable {
         Runtime.getRuntime().addShutdownHook(DubboShutdownHook.getDubboShutdownHook());
     }
 
+    //配置对象的编号，适用于除了 API 配置之外的三种配置方式，标记一个配置对象，可用于对象之间的引用
     protected String id;
 
     private static String convertLegacyValue(String key, String value) {
