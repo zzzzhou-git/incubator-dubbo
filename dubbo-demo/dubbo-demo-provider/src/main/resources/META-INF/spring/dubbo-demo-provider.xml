@@ -31,7 +31,7 @@
 
     <!-- use dubbo protocol to export service on port 20880 -->
     <!--<dubbo:protocol name="dubbo" port="20880"/>-->
-    <dubbo:protocol host="192.168.98.204" name="dubbo" port="20880" id="dubbo"/>
+    <dubbo:protocol host="127.0.0.1" name="dubbo" port="20880" id="dubbo"/>
 
     <!-- service implementation, as same as regular local bean -->
     <bean id="demoService" class="org.apache.dubbo.demo.provider.DemoServiceImpl"/>
