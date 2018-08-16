@@ -27,7 +27,7 @@ public class Apiconfig {
         reference.setInterface(DemoService.class);
         reference.setVersion("1.1.0");
 
-        DemoService demoService = reference.get();
+        //DemoService demoService = reference.get();
     }
 
 }
