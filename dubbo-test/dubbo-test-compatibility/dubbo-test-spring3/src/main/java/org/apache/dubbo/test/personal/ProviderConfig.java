@@ -10,6 +10,10 @@ import org.apache.dubbo.demo.provider.DemoServiceImpl;
 import java.io.IOException;
 
 /**
+ * dubbo Service的初始化
+ *
+ * ReferenceConfig 的初始化，会多创建 ProtocolConfig 对象，设置到 ServiceConfig
+ *
  * @author Yao.Zhou
  * @since 2018/8/17 16:32
  */

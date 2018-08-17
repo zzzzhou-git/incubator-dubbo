@@ -6,6 +6,8 @@ import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.demo.DemoService;
 
 /**
+ * dubbo Reference的初始化
+ *
  * @author Yao.Zhou
  * @since 2018/8/15 23:45
  */
