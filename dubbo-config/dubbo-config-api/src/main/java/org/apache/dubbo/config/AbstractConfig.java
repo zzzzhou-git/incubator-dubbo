@@ -158,10 +158,13 @@ public abstract class AbstractConfig implements Serializable {
                         method.invoke(config, convertPrimitive(method.getParameterTypes()[0], value));
                     }
                 }
+                //end if
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
+        //end for
     }
 
     private static String getTagName(Class<?> cls) {

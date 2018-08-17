@@ -44,7 +44,8 @@
 
         <dependency>
             <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-demo-api</artifactId>
+            <artifactId>dubbo-demo-provider</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
