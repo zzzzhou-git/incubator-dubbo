@@ -33,12 +33,27 @@ public abstract class AbstractReferenceConfig extends AbstractInterfaceConfig {
 
     // ======== Reference config default values, will take effect if reference's attribute is not set  ========
 
+    /**
+     * 启动时检查提供者是否存在，true报错，false忽略
+     * 缺省使用<dubbo:consumer>的check
+     * 可选
+     */
     // check if service provider exists
     protected Boolean check;
 
+    /**
+     * 是否在afterPropertiesSet()时饥饿初始化引用，否则等到有人注入或引用该实例时再初始化
+     * def=false
+     * 可选
+     */
     // whether to eagle-init
     protected Boolean init;
 
+    /**
+     * 是否缺省泛化接口，如果为泛化接口，将返回GenericService
+     * 缺省使用<dubbo:consumer>的generic
+     * 可选
+     */
     // whether to use generic interface
     protected String generic;
 
@@ -55,9 +70,19 @@ public abstract class AbstractReferenceConfig extends AbstractInterfaceConfig {
     // whether to support event in stub. //TODO solve merge problem
     protected Boolean stubevent;//= Constants.DEFAULT_STUB_EVENT;
 
+    /**
+     * 服务版本，与服务提供者的版本一致
+     *
+     * 可选
+     */
     // version
     protected String version;
 
+    /**
+     * 服务分组，当一个接口有多个实现，可以用分组区分，必需和服务提供方一致
+     *
+     * 可选
+     */
     // group
     protected String group;
 

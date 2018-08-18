@@ -32,44 +32,81 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 服务版本，建议使用两位数字版本，如：1.0，通常在接口不兼容时版本号才需要升级
+     * def=0.0.0
+     * 可选
+     */
     // version
     protected String version;
 
+    /**
+     * 服务分组，当一个接口有多个实现，可以用分组区分
+     *
+     * 可选
+     */
     // group
     protected String group;
 
     // whether the service is deprecated
     protected Boolean deprecated;
 
+    /**
+     * 延迟注册服务时间(毫秒) ，设为-1时，表示延迟到Spring容器初始化完成时暴露服务
+     * def=0
+     * 可选
+     */
     // delay service exporting
     protected Integer delay;
 
     // whether to export the service
     protected Boolean export;
 
+    /**
+     * 服务权重
+     *
+     * 可选
+     */
     // weight
     protected Integer weight;
 
+    /**
+     * 服务文档URL
+     *
+     * 可选
+     */
     // document center
     protected String document;
 
     // whether to register as a dynamic service or not on register center
     protected Boolean dynamic;
 
+    /**
+     * 令牌验证，为空表示不开启，如果为true，表示随机生成动态令牌，否则使用静态令牌，令牌的作用是防止消费者绕过注册中心直接访问，保证注册中心的授权功能有效，如果使用点对点调用，需关闭令牌功能
+     * def=false
+     * 可选
+     */
     // whether to use token
     protected String token;
 
     // access log
     protected String accesslog;
     protected List<ProtocolConfig> protocols;
+
     // max allowed execute times
     private Integer executes;
+
     // whether to register
     private Boolean register;
 
     // warm up period
     private Integer warmup;
 
+    /**
+     * 协议序列化方式，当协议支持多种序列化方式时使用，比如：dubbo协议的dubbo,hessian2,java,compactedjava，以及http协议的json,xml等
+     * def=dubbo协议缺省为hessian2，rmi协议缺省为java，http协议缺省为json
+     * 可选
+     */
     // serialization
     private String serialization;
 

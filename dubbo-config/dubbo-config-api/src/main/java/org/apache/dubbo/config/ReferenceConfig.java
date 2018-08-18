@@ -71,19 +71,55 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
 
     private static final ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
     private final List<URL> urls = new ArrayList<URL>();
+
+    /**
+     * 服务引用BeanId
+     *
+     * 必填
+     * @see AbstractConfig.id
+     */
+    //id
+
+    /**
+     * 服务接口名
+     *
+     * 必填
+     */
     // interface name
+    @SuppressWarnings("JavadocReference")
     private String interfaceName;
     private Class<?> interfaceClass;
     private Class<?> asyncInterfaceClass;
+
+    /**
+     * 客户端传输类型设置，如Dubbo协议的netty或mina。
+     *
+     * 	可选
+     */
     // client type
     private String client;
+
+    /**
+     * 点对点直连服务提供者地址，将绕过注册中心
+     *
+     * 可选
+     */
     // url for peer-to-peer invocation
     private String url;
     // method configs
     private List<MethodConfig> methods;
     // default config
     private ConsumerConfig consumer;
+
+
+    /**
+     * 只调用指定协议的服务提供方，其它协议忽略
+     *
+     * 可选
+     */
     private String protocol;
+
+
     // interface proxy reference
     private transient volatile T ref;
     private transient volatile Invoker<?> invoker;

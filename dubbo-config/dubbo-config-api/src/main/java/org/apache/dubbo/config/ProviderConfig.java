@@ -40,7 +40,21 @@ public class ProviderConfig extends AbstractServiceConfig {
 
     // ======== protocol default values, it'll take effect when protocol's attributes are not set ========
 
+    /**
+     * 服务引用BeanId
+     *
+     * 必填
+     * @see AbstractConfig.id
+     */
+    //id
+
+    /**
+     * 服务主机名，多网卡选择或指定VIP及域名时使用，为空则自动查找本机IP，建议不要配置，让Dubbo自动获取本机IP
+     * def=自动查找本机IP
+     * 可选
+     */
     // service IP addresses (used when there are multiple network cards available)
+    @SuppressWarnings("JavadocReference")
     private String host;
 
     // service port
@@ -49,30 +63,70 @@ public class ProviderConfig extends AbstractServiceConfig {
     // context path
     private String contextpath;
 
+    /**
+     * 线程池类型，可选：fixed/cached
+     * def=fixed
+     * 可选
+     */
     // thread pool
     private String threadpool;
 
+    /**
+     * 服务线程池大小(固定大小)
+     * def=100
+     * 可选
+     */
     // thread pool size (fixed size)
     private Integer threads;
 
+    /**
+     * IO线程池，接收网络读写中断，以及序列化和反序列化，不处理业务，业务线程池参见threads配置，此线程池和CPU相关，不建议配置。
+     * def=CPU + 1
+     * 可选
+     */
     // IO thread pool size (fixed size)
     private Integer iothreads;
 
     // thread pool queue length
     private Integer queues;
 
+    /**
+     * 服务提供者最大可接受连接数
+     * def=0
+     * 可选
+     */
     // max acceptable connections
     private Integer accepts;
 
+    /**
+     * 协议编码方式
+     * def=dubbo
+     * 可选
+     */
     // protocol codec
     private String codec;
 
+    /**
+     * 序列化编码
+     * def=UTF-8
+     * 可选
+     */
     // charset
     private String charset;
 
+    /**
+     * 请求及响应数据包大小限制，单位：字节
+     * def=88388608(=8M)
+     * 可选
+     */
     // payload max length
     private Integer payload;
 
+    /**
+     * 网络读写缓冲区大小
+     * def=	8192
+     * 可选
+     */
     // buffer size
     private Integer buffer;
 
@@ -88,12 +142,27 @@ public class ProviderConfig extends AbstractServiceConfig {
     // networker
     private String networker;
 
+    /**
+     * 协议的服务器端实现类型，比如：dubbo协议的mina,netty等，http协议的jetty,servlet等
+     * def=dubbo协议缺省为netty，http协议缺省为servlet
+     * 可选
+     */
     // server impl
     private String server;
 
+    /**
+     * 协议的客户端实现类型，比如：dubbo协议的mina,netty等
+     * def=dubbo协议缺省为netty
+     * 可选
+     */
     // client impl
     private String client;
 
+    /**
+     * 所支持的telnet命令，多个命令用逗号分隔
+     *
+     * 可选
+     */
     // supported telnet commands, separated with comma.
     private String telnet;
 
@@ -106,6 +175,11 @@ public class ProviderConfig extends AbstractServiceConfig {
     // wait time when stop
     private Integer wait;
 
+    /**
+     * 是否为缺省协议，用于多协议
+     * def=false
+     * 可选
+     */
     // if it's default
     private Boolean isDefault;
 

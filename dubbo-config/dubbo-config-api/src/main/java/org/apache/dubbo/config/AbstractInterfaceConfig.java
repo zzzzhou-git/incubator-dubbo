@@ -50,34 +50,80 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     private static final long serialVersionUID = -1559314110797223229L;
 
+    /**
+     * 服务接口调用失败Mock实现类名，该Mock类必须有一个无参构造函数，与Local的区别在于，Local总是被执行，而Mock只在出现非业务异常(比如超时，网络异常等)时执行，Local在远程调用之前执行，Mock在远程调用后执行。
+     *
+     * 可选
+     */
     // local impl class name for the service interface
     protected String local;
 
+    /**
+     * 服务接口客户端本地代理类名，用于在客户端执行本地逻辑，如本地缓存等，该本地代理类的构造函数必须允许传入远程代理对象，构造函数如：public XxxServiceLocal(XxxService xxxService)
+     *
+     * 可选
+     */
     // local stub class name for the service interface
     protected String stub;
 
     // service monitor
     protected MonitorConfig monitor;
 
+    /**
+     * 选择动态代理实现策略，可选：javassist, jdk
+     * def=javassist
+     * 可选
+     */
     // proxy type
     protected String proxy;
 
+    /**
+     * 集群方式，可选：failover/failfast/failsafe/failback/forking
+     * def=failover
+     * 可选
+     */
     // cluster type
     protected String cluster;
 
+    /**
+     * 服务消费方远程调用过程拦截器名称，多个名称用逗号分隔
+     * def=default
+     * 可选
+     */
     // filter
     protected String filter;
 
+    /**
+     * 服务消费方引用服务监听器名称，多个名称用逗号分隔
+     * def=default
+     * 可选
+     */
     // listener
     protected String listener;
 
+    /**
+     * 调用服务负责人，用于服务治理，请填写负责人公司邮箱前缀
+     *
+     * 可选
+     */
     // owner
     protected String owner;
 
+    /**
+     * 对每个提供者的最大连接数，rmi、http、hessian等短连接协议表示限制连接数，dubbo等长连接协表示建立的长连接个数
+     * def=consumer中缺省使用<dubbo:consumer>的connections
+     * def=100
+     * 可选
+     */
     // connection limits, 0 means shared connection, otherwise it defines the connections delegated to the
     // current service
     protected Integer connections;
 
+    /**
+     * 服务调用者所在的分层。如：biz、dao、intl:web、china:acton
+     *
+     * 可选
+     */
     // layer
     protected String layer;
 

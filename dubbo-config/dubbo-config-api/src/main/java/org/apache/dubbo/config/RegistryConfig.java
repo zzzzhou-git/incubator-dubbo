@@ -30,21 +30,61 @@ public class RegistryConfig extends AbstractConfig {
 
     public static final String NO_AVAILABLE = "N/A";
     private static final long serialVersionUID = 5508512956753757169L;
+
+    /**
+     * 注册中心引用BeanId，可以在<dubbo:service registry="">或<dubbo:reference registry="">中引用此ID
+     *
+     * 可选
+     * @see AbstractConfig.id
+     */
+    //id
+
+    /**
+     * 注册中心服务器地址，如果地址没有端口缺省为9090，同一集群内的多个地址用逗号分隔，如：ip:port,ip:port，不同集群的注册中心，请配置多个<dubbo:registry>标签
+     *
+     * 必填
+     */
     // register center address
+    @SuppressWarnings("JavadocReference")
     private String address;
 
+    /**
+     * 登录注册中心用户名，如果注册中心不需要验证可不填
+     *
+     * 可选
+     */
     // username to login register center
     private String username;
 
+    /**
+     * 登录注册中心密码，如果注册中心不需要验证可不填
+     *
+     * 可选
+     */
     // password to login register center
     private String password;
 
+    /**
+     * 注册中心缺省端口，当address没有带端口时使用此端口做为缺省值
+     * def=9090
+     * 可选
+     */
     // default port for register center
     private Integer port;
 
+    /**
+     * 注同中心地址协议，支持dubbo, http, local三种协议，分别表示，dubbo地址，http地址，本地注册中心
+     * def=dubbo
+     * 可选
+     */
     // protocol for register center
     private String protocol;
 
+    /**
+     * 网络传输方式，可选mina,netty
+     * def=netty
+     * 可选
+     */
     // client impl
     private String transporter;
 
@@ -58,27 +98,67 @@ public class RegistryConfig extends AbstractConfig {
 
     private String version;
 
+    /**
+     * 注册中心请求超时时间(毫秒)
+     * def=5000
+     * 可选
+     */
     // request timeout in milliseconds for register center
     private Integer timeout;
 
+    /**
+     * 注册中心会话超时时间(毫秒)，用于检测提供者非正常断线后的脏数据，比如用心跳检测的实现，此时间就是心跳间隔，不同注册中心实现不一样
+     * def=60000
+     * 可选
+     */
     // session timeout in milliseconds for register center
     private Integer session;
 
+    /**
+     * 使用文件缓存注册中心地址列表及服务提供者列表，应用重启时将基于此文件恢复，注意：两个注册中心不能使用同一文件存储
+     *
+     * 可选
+     */
     // file for saving register center dynamic list
     private String file;
 
+    /**
+     * 停止时等待通知完成时间(毫秒)
+     * def=0
+     * 可选
+     */
     // wait time before stop
     private Integer wait;
 
+    /**
+     * 注册中心不存在时，是否报错
+     * def=true
+     * 可选
+     */
     // whether to check if register center is available when boot up
     private Boolean check;
 
+    /**
+     * 服务是否动态注册，如果设为false，注册后将显示后disable状态，需人工启用，并且服务提供者停止时，也不会自动取消册，需人工禁用
+     * def=true
+     * 可选
+     */
     // whether to allow dynamic service to register on the register center
     private Boolean dynamic;
 
+    /**
+     * 是否向此注册中心注册服务，如果设为false，将只订阅，不注册
+     * def=true
+     * 可选
+     */
     // whether to export service on the register center
     private Boolean register;
 
+    /**
+     * 是否向此注册中心订阅服务，如果设为false，将只注册，不订阅
+     * def=true
+     * 可选
+     */
     // whether allow to subscribe service on the register center
     private Boolean subscribe;
 

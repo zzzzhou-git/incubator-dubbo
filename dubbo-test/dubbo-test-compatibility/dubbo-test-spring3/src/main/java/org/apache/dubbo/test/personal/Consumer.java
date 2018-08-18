@@ -11,7 +11,7 @@ import org.apache.dubbo.demo.DemoService;
  * @author Yao.Zhou
  * @since 2018/8/15 23:45
  */
-public class ConsumerConfig {
+public class Consumer {
 
     public static void main(String[] args) {
 

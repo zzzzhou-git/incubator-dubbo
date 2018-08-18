@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author Yao.Zhou
  * @since 2018/8/17 16:32
  */
-public class ProviderConfig {
+public class Provider {
 
     public static void main(String[] args) {
         DemoService demoService = new DemoServiceImpl();

@@ -26,8 +26,8 @@
     <dubbo:application name="demo-consumer"/>
 
     <!-- use multicast registry center to discover service -->
-    <!-- <dubbo:registry address="multicast://224.5.6.7:1234"/> -->
-    <dubbo:registry protocol="zookeeper" address="10.0.17.80:2181,10.0.17.81:2181,10.0.17.82:2181" timeout="100000"/>
+    <dubbo:registry address="multicast://224.5.6.7:1234"/>
+    <!--<dubbo:registry protocol="zookeeper" address="10.0.17.80:2181,10.0.17.81:2181,10.0.17.82:2181" timeout="100000"/>-->
 
     <!-- generate proxy for the remote service, then demoService can be used in the same way as the
     local regular interface -->

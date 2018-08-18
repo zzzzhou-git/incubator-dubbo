@@ -63,16 +63,38 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private static final ScheduledExecutorService delayExportExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("DubboServiceDelayExporter", true));
     private final List<URL> urls = new ArrayList<URL>();
     private final List<Exporter<?>> exporters = new ArrayList<Exporter<?>>();
+
+    /**
+     * 服务接口名
+     * 必填
+     */
     // interface type
     private String interfaceName;
     private Class<?> interfaceClass;
+
+    /**
+     * 服务对象实现引用
+     */
     // reference to interface impl
     private T ref;
+
+    /**
+     * 服务路径 (注意：1.0不支持自定义路径，总是使用接口名，如果有1.0调2.0，配置服务路径可能不兼容)
+     * 缺省为接口名
+     * 可选
+     */
     // service name
     private String path;
+
     // method configuration
     private List<MethodConfig> methods;
+
+    /**
+     * 一个service也是一个provider
+     */
     private ProviderConfig provider;
+
+
     private transient volatile boolean exported;
 
     private transient volatile boolean unexported;
@@ -175,7 +197,16 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         return unexported;
     }
 
+    /**
+     * 开始暴露服务
+     *
+     * 1. 进一步初始化 ServiceConfig 对象
+     * 2. 校验 ServiceConfig 对象的配置项
+     * 3. 使用 ServiceConfig 对象，生成 Dubbo URL 对象数组
+     * 4. 使用 Dubbo URL 对象，暴露服务
+     */
     public synchronized void export() {
+        //当export或者delay未配置, 从ProviderConfig对象中取出
         if (provider != null) {
             if (export == null) {
                 export = provider.getExport();
@@ -184,23 +215,26 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 delay = provider.getDelay();
             }
         }
+
+        // 不暴露服务( export = false ) ，则不进行暴露服务逻辑。
         if (export != null && !export) {
             return;
         }
 
+        // 延迟暴露
         if (delay != null && delay > 0) {
-            delayExportExecutor.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    doExport();
-                }
+            delayExportExecutor.schedule(() -> {
+                doExport();
             }, delay, TimeUnit.MILLISECONDS);
+
+        // 立即暴露
         } else {
             doExport();
         }
     }
 
     protected synchronized void doExport() {
+        // 检查是否可以暴露，若可以，标记已经暴露。
         if (unexported) {
             throw new IllegalStateException("Already unexported!");
         }
@@ -208,12 +242,19 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             return;
         }
         exported = true;
+
+        //校验接口名, 不能为空
         if (interfaceName == null || interfaceName.length() == 0) {
             throw new IllegalStateException("<dubbo:service interface=\"\" /> interface not allow null!");
         }
+
+        // 拼接属性配置（环境变量 + properties 属性）到 ProviderConfig 对象
         checkDefault();
+
+        // 从 ProviderConfig 对象中，读取 application、module、registries、monitor、protocols 配置对象。
         if (provider != null) {
             if (application == null) {
+                //获取ApplicationConfig信息
                 application = provider.getApplication();
             }
             if (module == null) {
