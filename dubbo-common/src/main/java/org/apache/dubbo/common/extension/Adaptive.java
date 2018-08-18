@@ -29,31 +29,30 @@ import java.lang.annotation.Target;
  *
  * @see ExtensionLoader
  * @see URL
+ *
+ * 自适应拓展信息的标记
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Adaptive {
+
     /**
-     * Decide which target extension to be injected. The name of the target extension is decided by the parameter passed
-     * in the URL, and the parameter names are given by this method.
+     * 从 {@link URL }的 Key 名，对应的 Value 作为要 Adapt 成的 Extension 名。
      * <p>
-     * If the specified parameters are not found from {@link URL}, then the default extension will be used for
-     * dependency injection (specified in its interface's {@link SPI}).
-     * <p>
-     * For examples, given <code>String[] {"key1", "key2"}</code>:
+     * 如果 {@link URL} 这些 Key 都没有 Value ，使用 缺省的扩展（在接口的{@link SPI}中设定的值）。<br>
+     * 比如，<code>String[] {"key1", "key2"}</code>，表示
      * <ol>
-     * <li>find parameter 'key1' in URL, use its value as the extension's name</li>
-     * <li>try 'key2' for extension's name if 'key1' is not found (or its value is empty) in URL</li>
-     * <li>use default extension if 'key2' doesn't appear either</li>
-     * <li>otherwise, throw {@link IllegalStateException}</li>
+     *      <li>先在URL上找key1的Value作为要Adapt成的Extension名；
+     *      <li>key1没有Value，则使用key2的Value作为要Adapt成的Extension名。
+     *      <li>key2没有Value，使用缺省的扩展。
+     *      <li>如果没有设定缺省扩展，则方法调用会抛出{@link IllegalStateException}。
      * </ol>
-     * If default extension's name is not give on interface's {@link SPI}, then a name is generated from interface's
-     * class name with the rule: divide classname from capital char into several parts, and separate the parts with
-     * dot '.', for example: for {@code org.apache.dubbo.xxx.YyyInvokerWrapper}, its default name is
-     * <code>String[] {"yyy.invoker.wrapper"}</code>. This name will be used to search for parameter from URL.
+     * <p>
+     * 如果不设置则缺省使用Extension接口类名的点分隔小写字串。<br>
+     * 即对于Extension接口 {@code com.alibaba.dubbo.xxx.YyyInvokerWrapper} 的缺省值为 <code>String[] {"yyy.invoker.wrapper"}</code>
      *
-     * @return parameter key names in URL
+     * @see SPI#value()
      */
     String[] value() default {};
 

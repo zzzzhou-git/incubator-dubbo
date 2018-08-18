@@ -19,6 +19,9 @@ package org.apache.dubbo.rpc;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * 是会话域，它持有调用过程中返回值，异常等
+ */
 
 /**
  * RPC invoke result. (API, Prototype, NonThreadSafe)
@@ -34,6 +37,7 @@ public interface Result extends Serializable {
      *
      * @return result. if no result return null.
      */
+    //获得返回值
     Object getValue();
 
     /**
@@ -41,6 +45,7 @@ public interface Result extends Serializable {
      *
      * @return exception. if no exception return null.
      */
+    //获得返回的异常
     Throwable getException();
 
     /**
@@ -79,6 +84,7 @@ public interface Result extends Serializable {
      *
      * @return attachments.
      */
+    //获得返回的隐式参数相关
     Map<String, String> getAttachments();
 
     /**

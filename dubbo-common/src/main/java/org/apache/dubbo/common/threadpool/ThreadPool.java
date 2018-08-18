@@ -24,6 +24,14 @@ import org.apache.dubbo.common.extension.SPI;
 import java.util.concurrent.Executor;
 
 /**
+ * dubbo目前提供了4中线程池的实现：
+ *      1. fixed 固定大小线程池，启动时建立线程，不关闭，一直持有。（默认使用）
+ *      2. cached 缓存线程池，空闲一分钟自动删除，需要时重建
+ *      3. limited 可伸缩线程池，但池中的线程数只会增长不会收缩。只增长不收缩的目的是为了避免收缩时突然来了大流量引起的性能问题
+ *      4. eager 优先创建Worker线程池。在任务数量大于corePoolSize但是小于maximumPoolSize时，优先创建Worker来处理任务。
+ *          当任务数量大于maximumPoolSize时，将任务放入阻塞队列中。阻塞队列充满时抛出RejectedExecutionException。
+ *          (相比于cached:cached在任务数量超过maximumPoolSize时直接抛出异常而不是将任务放入阻塞队列)
+ *
  * ThreadPool
  */
 @SPI("fixed")
@@ -35,7 +43,7 @@ public interface ThreadPool {
      * @param url URL contains thread parameter
      * @return thread pool
      */
-    @Adaptive({Constants.THREADPOOL_KEY})
+    @Adaptive({Constants.THREADPOOL_KEY}) //基于 Dubbo SPI Adaptive 机制，加载对应的线程池实现，使用 URL.threadpool 属性。
     Executor getExecutor(URL url);
 
 }

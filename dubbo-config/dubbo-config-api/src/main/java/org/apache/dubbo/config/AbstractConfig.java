@@ -95,6 +95,14 @@ public abstract class AbstractConfig implements Serializable {
     /**
      * 读取环境变量和 properties 配置到配置对象
      *
+     * 如果公共配置很简单，没有多注册中心，多协议等情况，或者想多个 Spring 容器想共享配置，可以使用 dubbo.properties 作为缺省配置。
+     *
+     * Dubbo 将自动加载 classpath 根目录下的 dubbo.properties，可以通过JVM启动参数 -Ddubbo.properties.file=xxx.properties 改变缺省配置位置
+     *
+     * JVM 启动 -D 参数优先，这样可以使用户在部署和启动时进行参数重写，比如在启动时需改变协议的端口。
+     * XML 次之，如果在 XML 中有配置，则 dubbo.properties 中的相应配置项无效。
+     * Properties 最后，相当于缺省值，只有 XML 没有配置时，dubbo.properties 的相应配置项才会生效，通常用于共享公共配置，比如应用名
+     *
      * @param config
      */
     protected static void appendProperties(AbstractConfig config) {
