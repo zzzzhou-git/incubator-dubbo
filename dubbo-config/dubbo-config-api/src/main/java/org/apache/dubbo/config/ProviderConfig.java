@@ -28,11 +28,13 @@ import org.apache.dubbo.remoting.telnet.TelnetHandler;
 import java.util.Arrays;
 
 /**
+ * 服务提供者缺省值配置
+ *
  * ProviderConfig
  *
  * @export
- * @see org.apache.dubbo.config.ProtocolConfig
- * @see org.apache.dubbo.config.ServiceConfig
+ * @see ProtocolConfig
+ * @see ServiceConfig
  */
 public class ProviderConfig extends AbstractServiceConfig {
 

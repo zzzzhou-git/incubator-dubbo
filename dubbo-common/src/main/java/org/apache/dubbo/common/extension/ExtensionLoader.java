@@ -38,6 +38,11 @@ import java.util.regex.Pattern;
 /**
  * 拓展加载器。这是 Dubbo SPI 的核心
  *
+ * dubbo把扩展点分为了三类：
+ *      可自动激活的扩展点（Activate）  ： getActivateExtension
+ *      自适应的扩展点（Adaptive）     ： getAdaptiveExtension
+ *      普通的扩展点                  ： getExtension
+ *
  * Load dubbo extensions
  * <ul>
  * <li>auto inject dependency extension </li>
@@ -55,7 +60,7 @@ public class ExtensionLoader<T> {
 
     //在 META-INF/dubbo/internal/ 和 META-INF/dubbo/ 目录下，放置 接口全限定名 配置文件，每行内容为：拓展名=拓展实现类全限定名。
     //META-INF/dubbo/internal/ 目录下，用于 Dubbo 内部提供的拓展实现
-    private static final String SERVICES_DIRECTORY = "META-INF/services/";
+    private static final String SERVICES_DIRECTORY = "META-INF/services/"; //META-INF/services目录说明兼容了JDK的SPI
     private static final String DUBBO_DIRECTORY = "META-INF/dubbo/";
     private static final String DUBBO_INTERNAL_DIRECTORY = DUBBO_DIRECTORY + "internal/";
 
@@ -67,7 +72,8 @@ public class ExtensionLoader<T> {
      * 静态属性说明
      *
      * 1. ExtensionLoader 是 ExtensionLoader 的管理容器。
-     * 2. 一个拓展( 拓展接口 )对应一个 ExtensionLoader 对象。例如，Protocol 和 Filter 分别对应一个 ExtensionLoader 对象
+     * 2. 一个拓展( 拓展接口 )对应一个 ExtensionLoader 对象。
+     *      例如，Protocol 和 Filter 分别对应一个 ExtensionLoader 对象
      */
 
     /**
@@ -90,8 +96,8 @@ public class ExtensionLoader<T> {
      * 对象属性说明
      *
      * 1. 一个拓展通过其 ExtensionLoader 对象，加载它的拓展实现们，多个属性都是 “cached“ 开头
-     * 2. ExtensionLoader 考虑到性能和资源的优化，读取拓展配置后，会首先进行缓存。等到 Dubbo 代码真正用到对应的拓展实现时，进行拓展实现的对象的初始化。并且，初始化完成后，也会进行缓存。
-     *  即：缓存加载的拓展配置 -> 缓存创建的拓展实现对象
+     * 2. ExtensionLoader 考虑到性能和资源的优化，读取拓展配置后，会首先进行缓存。等到 Dubbo 代码真正用到对应的拓展实现时，
+     *      进行拓展实现的对象的初始化。并且，初始化完成后，也会进行缓存。即：缓存加载的拓展配置 -> 缓存创建的拓展实现对象
      */
 
     /**
@@ -607,11 +613,13 @@ public class ExtensionLoader<T> {
 
     /**
      * 获得自适应拓展对象
+     *
+     *
+     *
      * @return
      */
     @SuppressWarnings("unchecked")
     public T getAdaptiveExtension() {
-
         //获得自适应拓展对象
         Object instance = cachedAdaptiveInstance.get();
         if (instance == null) {
@@ -770,7 +778,7 @@ public class ExtensionLoader<T> {
     }
 
     /**
-     * 获得拓展实现类数组
+     * 获得拓展实现类数组， 加载type对应的所有class，缓存到cachedClass中
      *
      * @return 拓展实现类数组
      */
@@ -924,6 +932,14 @@ public class ExtensionLoader<T> {
         }
 
         // 如果类标注有@Adaptive, 说明是自适应拓展点, 缓存自适应拓展对象的类到 `cachedAdaptiveClass`
+        /**
+         * 这里说明：
+         *      1. 当Adaptive标注到Class， 我们去使用AdaptiveExtension时，可以从cachedAdaptiveClass中获得对应的Extension，而不用去动态生成Class对象
+         *      2. 当Adaptive标注到Method，我们使用AdaptiveExtension时，动态生成Class对象，生成对象时，遍历type的Method，当method标注有Adaptive时，
+         *          根据URL的类型再次获取相关的Extension（这种获取过程可能需要多次，但是这是直线型的调用），最后再调用相关方法；
+         *          当Method上没有标注Adaptive时，如果调用该方法抛出异常；
+         *      3. 优先使用class上的Adaptive注解，因为加载AdaptiveExtension时，也会loadClass，也会执行这个流程，再判断cachedAdaptiveClass是否为空，选择是否动态写类
+         */
         if (clazz.isAnnotationPresent(Adaptive.class)) {
             if (cachedAdaptiveClass == null) {
                 cachedAdaptiveClass = clazz;
@@ -954,7 +970,7 @@ public class ExtensionLoader<T> {
                 }
             }
 
-            // 获得拓展名，可以是数组，有多个拓展名。
+            // 获得拓展名，可以是数组，有多个拓展名
             String[] names = NAME_SEPARATOR.split(name);
             if (names != null && names.length > 0) {
 
@@ -996,6 +1012,8 @@ public class ExtensionLoader<T> {
      *
      * 若成功（未抛出异常），则代表符合条件, 例如，ProtocolFilterWrapper(Protocol protocol) 这个构造方法
      *
+     * 如果当前类有拷贝构造方法，则表明是一个包装类
+     *
      * @param clazz
      * @return
      */
@@ -1028,21 +1046,37 @@ public class ExtensionLoader<T> {
     @SuppressWarnings("unchecked")
     private T createAdaptiveExtension() {
         try {
-            return injectExtension((T) getAdaptiveExtensionClass().newInstance());
+            //生成AdaptiveExtension类，缓存到cachedAdaptiveClass，并生成一个实例
+            T target = (T) getAdaptiveExtensionClass().newInstance();
+
+            return injectExtension(target);
         } catch (Exception e) {
             throw new IllegalStateException("Can not create adaptive extension " + type + ", cause: " + e.getMessage(), e);
         }
     }
 
     /**
-     * 如果没有自适应的扩展点，调用createAdaptiveExtensionClass生成一个自适应的类
+     * 1. 加载type对应的所有拓展点的class对象到cachedClass Holder中
+     * 2. 如果没有自适应的扩展点，调用createAdaptiveExtensionClass生成一个自适应的类
+     * 3. 生成的自适应类名称规范为：typeName$Adaptive
+     * 4. 实际上，自适应类只是一个包装类，它实现了对应SPI接口的方法；
+     *      每当调用typeName$Adaptive类的方法时，如果SPI接口方法没有@Adaptive注解，表示不能被代理，抛出异常
+     *          如果SPI接口方法有@Adaptive注解，表示可以代理，再从URL中拿到名称（比如dubbo协议拓展实现）extName，
+     *              再调用ExtensionLoader.getExtensionLoader(org.apache.dubbo.rpc.cluster.Cluster.class).getExtension(extName)，获得具体的服务
+     *              再调用该服务的该接口方法，完成调用链
+     *
+     *  5. 对于URL的获取，要么参数有URL，要么传入参数对象中有URL
+     *
+     *  6. URL贯穿整个项目，从URL中可以拿到某个拓展点名称，不管是默认名称，还是我们配置的名称，这是一个规定
      *
      * @return 自适应拓展类
      */
     private Class<?> getAdaptiveExtensionClass() {
+        //扫描配置文件，获取所有type的实现类，缓存到cachedClass Holder中
+        //一个type对应的所有扩展点均已加载完毕
         getExtensionClasses();
-        if (cachedAdaptiveClass != null) {
 
+        if (cachedAdaptiveClass != null) {
             //若 cachedAdaptiveClass 已存在，直接返回
             return cachedAdaptiveClass;
         }
@@ -1056,8 +1090,12 @@ public class ExtensionLoader<T> {
      * @return
      */
     private Class<?> createAdaptiveExtensionClass() {
+        //生成AdaptiveExtension代码
         String code = createAdaptiveExtensionClassCode();
+
+        //TODO
         ClassLoader classLoader = findClassLoader();
+
         org.apache.dubbo.common.compiler.Compiler compiler = ExtensionLoader.getExtensionLoader(org.apache.dubbo.common.compiler.Compiler.class).getAdaptiveExtension();
         return compiler.compile(code, classLoader);
     }

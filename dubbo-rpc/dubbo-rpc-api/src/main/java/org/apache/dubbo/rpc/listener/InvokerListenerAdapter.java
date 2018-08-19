@@ -21,6 +21,8 @@ import org.apache.dubbo.rpc.InvokerListener;
 import org.apache.dubbo.rpc.RpcException;
 
 /**
+ * 实现 ExporterListener 接口，ExporterListener 适配器抽象类
+ *
  * InvokerListenerAdapter
  */
 public abstract class InvokerListenerAdapter implements InvokerListener {

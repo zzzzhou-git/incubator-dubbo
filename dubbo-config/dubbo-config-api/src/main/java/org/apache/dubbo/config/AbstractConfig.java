@@ -36,11 +36,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * 抽象配置类，除了 ArgumentConfig ，所有的配置类都继承该类。 AbstractConfig 主要提供配置解析与校验相关的工具方法
+ *
  * Utility methods and public methods for parsing configuration
  *
  * @export
  *
- *  抽象配置类，除了 ArgumentConfig ，所有的配置类都继承该类。 AbstractConfig 主要提供配置解析与校验相关的工具方法
+ * 所有配置项分为三大类，参见下表中的”作用”一列。
+ *      服务发现：表示该配置项用于服务的注册与发现，目的是让消费方找到提供方。
+ *      服务治理：表示该配置项用于治理服务间的关系，或为开发测试提供便利条件。
+ *      性能调优：表示该配置项用于调优性能，不同的选项对性能会产生影响。
+ *
+ *  所有配置最终都将转换为 Dubbo URL 表示，并由服务提供方生成，经注册中心传递给消费方，各属性对应 URL 的参数，参见配置项一览表中的 “对应URL参数” 列
  */
 public abstract class AbstractConfig implements Serializable {
 
@@ -114,6 +121,8 @@ public abstract class AbstractConfig implements Serializable {
         for (Method method : methods) {
             try {
                 String name = method.getName();
+
+                //public方法， 方法名长度大于3， 参数个数为1， 参数类型为基本类型 --> 配置的属性
                 if (name.length() > 3 && name.startsWith("set") && Modifier.isPublic(method.getModifiers())
                         && method.getParameterTypes().length == 1 && isPrimitive(method.getParameterTypes()[0])) {
                     String property = StringUtils.camelToSplitName(name.substring(3, 4).toLowerCase() + name.substring(4), ".");
@@ -197,7 +206,7 @@ public abstract class AbstractConfig implements Serializable {
      * @param parameters
      * @param config
      * @param prefix
-     * @see org.apache.dubbo.common.URL
+     * @see URL
      */
     @SuppressWarnings("unchecked")
     protected static void appendParameters(Map<String, String> parameters, Object config, String prefix) {

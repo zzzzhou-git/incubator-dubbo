@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 抽象接口配置类
+ *
  * AbstractDefaultConfig
  *
  * @export
@@ -203,28 +205,40 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     protected List<URL> loadRegistries(boolean provider) {
+        // 校验 RegistryConfig 配置数组
         checkRegistry();
+
+        // 创建 注册中心 URL 数组
         List<URL> registryList = new ArrayList<URL>();
         if (registries != null && !registries.isEmpty()) {
             for (RegistryConfig config : registries) {
+                // 获得注册中心的地址
                 String address = config.getAddress();
                 if (address == null || address.length() == 0) {
                     address = Constants.ANYHOST_VALUE;
                 }
-                String sysaddress = System.getProperty("dubbo.registry.address");
+                String sysaddress = System.getProperty("dubbo.registry.address");  // 从启动参数读取, 若存在，最高优先级，进行覆盖
                 if (sysaddress != null && sysaddress.length() > 0) {
                     address = sysaddress;
                 }
-                if (address.length() > 0 && !RegistryConfig.NO_AVAILABLE.equalsIgnoreCase(address)) {
+
+                // 有效的地址
+                if (address.length() > 0 && !RegistryConfig.NO_AVAILABLE.equalsIgnoreCase(address)) { // "N/A" 代表不配置注册中心
                     Map<String, String> map = new HashMap<String, String>();
+
+                    // 将各种配置对象，添加到 `map` 集合中
                     appendParameters(map, application);
                     appendParameters(map, config);
+
+                    // 添加 `path` `dubbo` `timestamp` `pid` 到 `map` 集合中。
                     map.put("path", RegistryService.class.getName());
                     map.put("dubbo", Version.getProtocolVersion());
                     map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
                     if (ConfigUtils.getPid() > 0) {
                         map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));
                     }
+
+                    // 若不存在 `protocol` 参数，默认 "dubbo" 添加到 `map` 集合中
                     if (!map.containsKey("protocol")) {
                         if (ExtensionLoader.getExtensionLoader(RegistryFactory.class).hasExtension("remote")) {
                             map.put("protocol", "remote");
@@ -232,12 +246,20 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                             map.put("protocol", "dubbo");
                         }
                     }
+
+                    // 解析地址，创建 Dubbo URL 数组。（数组大小可以为一）
                     List<URL> urls = UrlUtils.parseURLs(address, map);
+
+                    // 循环 `url` ，设置 "registry" 和 "protocol" 属性。
                     for (URL url : urls) {
+
+                        // 设置 `registry=${protocol}` 和 `protocol=registry` 到 URL
                         url = url.addParameter(Constants.REGISTRY_KEY, url.getProtocol());
                         url = url.setProtocol(Constants.REGISTRY_PROTOCOL);
-                        if ((provider && url.getParameter(Constants.REGISTER_KEY, true))
-                                || (!provider && url.getParameter(Constants.SUBSCRIBE_KEY, true))) {
+
+                        // 添加到结果
+                        if ((provider && url.getParameter(Constants.REGISTER_KEY, true)) // 服务提供者 && 注册
+                                || (!provider && url.getParameter(Constants.SUBSCRIBE_KEY, true))) { // 服务消费者 && 订阅
                             registryList.add(url);
                         }
                     }
@@ -247,7 +269,14 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         return registryList;
     }
 
+    /**
+     * 加载监控中心 URL
+     * @param registryURL 注册中心 URL
+     * @return 监控中心 URL
+     */
     protected URL loadMonitor(URL registryURL) {
+
+        // 从 属性配置 中加载配置到 MonitorConfig 对象
         if (monitor == null) {
             String monitorAddress = ConfigUtils.getProperty("dubbo.monitor.address");
             String monitorProtocol = ConfigUtils.getProperty("dubbo.monitor.protocol");
@@ -264,6 +293,8 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
             }
         }
         appendProperties(monitor);
+
+        // 添加 `interface` `dubbo` `timestamp` `pid` 到 `map` 集合中
         Map<String, String> map = new HashMap<String, String>();
         map.put(Constants.INTERFACE_KEY, MonitorService.class.getName());
         map.put("dubbo", Version.getProtocolVersion());
@@ -279,13 +310,19 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
             throw new IllegalArgumentException("Specified invalid registry ip from property:" + Constants.DUBBO_IP_TO_REGISTRY + ", value:" + hostToRegistry);
         }
         map.put(Constants.REGISTER_IP_KEY, hostToRegistry);
+
+        // 将 MonitorConfig ，添加到 `map` 集合中
         appendParameters(map, monitor);
         appendParameters(map, application);
+
+        // 获得地址
         String address = monitor.getAddress();
         String sysaddress = System.getProperty("dubbo.monitor.address");
         if (sysaddress != null && sysaddress.length() > 0) {
             address = sysaddress;
         }
+
+        // 直连监控中心服务器地址
         if (ConfigUtils.isNotEmpty(address)) {
             if (!map.containsKey(Constants.PROTOCOL_KEY)) {
                 if (ExtensionLoader.getExtensionLoader(MonitorFactory.class).hasExtension("logstat")) {
@@ -294,7 +331,11 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                     map.put(Constants.PROTOCOL_KEY, "dubbo");
                 }
             }
+
+            // 解析地址，创建 Dubbo URL 对象
             return UrlUtils.parseURL(address, map);
+
+        // 从注册中心发现监控中心地址
         } else if (Constants.REGISTRY_PROTOCOL.equals(monitor.getProtocol()) && registryURL != null) {
             return registryURL.setProtocol("dubbo").addParameter(Constants.PROTOCOL_KEY, "registry").addParameterAndEncoded(Constants.REFER_KEY, StringUtils.toQueryString(map));
         }
