@@ -104,7 +104,11 @@ public abstract class AbstractConfig implements Serializable {
      *
      * 如果公共配置很简单，没有多注册中心，多协议等情况，或者想多个 Spring 容器想共享配置，可以使用 dubbo.properties 作为缺省配置。
      *
-     * Dubbo 将自动加载 classpath 根目录下的 dubbo.properties，可以通过JVM启动参数 -Ddubbo.properties.file=xxx.properties 改变缺省配置位置
+     * 1. 先取系统环境变量，优先级最高
+     * 2. XML或配置类优先级其次
+     * 2. Dubbo 将自动加载 classpath 根目录下的 dubbo.properties，
+     *    可以通过JVM启动参数 -Ddubbo.properties.file=xxx.properties 改变缺省配置位置
+     *    优先级最低
      *
      * JVM 启动 -D 参数优先，这样可以使用户在部署和启动时进行参数重写，比如在启动时需改变协议的端口。
      * XML 次之，如果在 XML 中有配置，则 dubbo.properties 中的相应配置项无效。
@@ -127,6 +131,7 @@ public abstract class AbstractConfig implements Serializable {
                         && method.getParameterTypes().length == 1 && isPrimitive(method.getParameterTypes()[0])) {
                     String property = StringUtils.camelToSplitName(name.substring(3, 4).toLowerCase() + name.substring(4), ".");
 
+                    // 【启动参数变量】优先从带有 `Config#id` 的配置中获取，例如：`dubbo.application.demo-provider.name`
                     String value = null;
                     if (config.getId() != null && config.getId().length() > 0) {
                         String pn = prefix + config.getId() + "." + property;
@@ -135,6 +140,8 @@ public abstract class AbstractConfig implements Serializable {
                             logger.info("Use System Property " + pn + " to config dubbo");
                         }
                     }
+
+                    // 【启动参数变量】获取不到，其次不带 `Config#id` 的配置中获取，例如：`dubbo.application.name`
                     if (value == null || value.length() == 0) {
                         String pn = prefix + property;
                         value = System.getProperty(pn);
@@ -143,6 +150,8 @@ public abstract class AbstractConfig implements Serializable {
                         }
                     }
                     if (value == null || value.length() == 0) {
+
+                        // 覆盖优先级为：启动参数变量 > XML 配置 > properties 配置，因此需要使用 getter 判断 XML 是否已经设置
                         Method getter;
                         try {
                             getter = config.getClass().getMethod("get" + name.substring(3));
@@ -154,7 +163,7 @@ public abstract class AbstractConfig implements Serializable {
                             }
                         }
                         if (getter != null) {
-                            if (getter.invoke(config) == null) {
+                            if (getter.invoke(config) == null) { //判断是否已经有值了
                                 if (config.getId() != null && config.getId().length() > 0) {
                                     value = ConfigUtils.getProperty(prefix + config.getId() + "." + property);
                                 }

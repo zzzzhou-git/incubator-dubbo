@@ -105,9 +105,6 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     // method configuration
     private List<MethodConfig> methods;
 
-    /**
-     * 一个service也是一个provider
-     */
     private ProviderConfig provider;
 
 
@@ -265,6 +262,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         }
 
         // 拼接属性配置（环境变量 + properties 属性）到 ProviderConfig 对象
+        // 如果有系统变量设置，直接替换原属性；如果有properties设置，在原属性为空的情况下设置属性
         checkDefault();
 
         // 从 ProviderConfig 对象中，读取 application、module、registries、monitor、protocols 配置对象。

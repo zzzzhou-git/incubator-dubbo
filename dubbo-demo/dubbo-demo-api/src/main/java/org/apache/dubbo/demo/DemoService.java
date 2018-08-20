@@ -18,6 +18,8 @@ package org.apache.dubbo.demo;
 
 public interface DemoService {
 
+    String sayHi(String name);
+
     String sayHello(String name);
 
 }
