@@ -321,10 +321,25 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 throw new IllegalStateException(e.getMessage(), e);
             }
 
-            // 校验接口和methondConfig方法
+            /**
+             * 校验接口和methondConfig方法
+             *      1. interfaceClass是不是接口；
+             *      2. 配置的method是否有name属性；
+             *      3. interface是否声明了该method；
+             *
+             * method配置:
+             *  <dubbo:reference interface="com.xxx.XxxService">
+             *      <dubbo:method name="findXxx" timeout="3000" retries="2" />
+             *  </dubbo:reference>
+             *
+             * method参数配置：
+             *  <dubbo:method name="findXxx" timeout="3000" retries="2">
+             *      <dubbo:argument index="0" callback="true" />
+             *  </dubbo:method>
+             */
             checkInterfaceAndMethods(interfaceClass, methods);
 
-            // 校验指向的 service 对象
+            //验证service的ref是不是该service interface的instance
             checkRef();
             generic = Boolean.FALSE.toString();
         }
@@ -389,7 +404,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         // 暴露服务
         doExportUrls();
 
-        //等待 qos
+        //TODO
         ProviderModel providerModel = new ProviderModel(getUniqueServiceName(), this, ref);
         ApplicationModel.initProviderModel(getUniqueServiceName(), providerModel);
     }
@@ -627,7 +642,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                         }
 
                         // 使用 ProxyFactory 创建 Invoker 对象
-                        // 这里创建的Invoker ，下一步会提交给 Protocol ，从 Invoker 转换到 Exporter
+                        // 这里创建的Invoker ，下一步会提交给 Protocol ，Protocol将 Invoker 转换成 Exporter
                         //JavassistProxyFactory
                         Invoker<?> invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(Constants.EXPORT_KEY, url.toFullString()));
 

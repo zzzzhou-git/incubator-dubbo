@@ -1102,7 +1102,6 @@ public class ExtensionLoader<T> {
         //生成AdaptiveExtension代码
         String code = createAdaptiveExtensionClassCode();
 
-        //TODO
         ClassLoader classLoader = findClassLoader();
 
         org.apache.dubbo.common.compiler.Compiler compiler = ExtensionLoader.getExtensionLoader(org.apache.dubbo.common.compiler.Compiler.class).getAdaptiveExtension();
