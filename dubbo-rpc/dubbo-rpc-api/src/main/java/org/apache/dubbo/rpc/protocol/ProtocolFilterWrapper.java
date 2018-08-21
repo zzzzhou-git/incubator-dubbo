@@ -19,13 +19,7 @@ package org.apache.dubbo.rpc.protocol;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.ExtensionLoader;
-import org.apache.dubbo.rpc.Exporter;
-import org.apache.dubbo.rpc.Filter;
-import org.apache.dubbo.rpc.Invocation;
-import org.apache.dubbo.rpc.Invoker;
-import org.apache.dubbo.rpc.Protocol;
-import org.apache.dubbo.rpc.Result;
-import org.apache.dubbo.rpc.RpcException;
+import org.apache.dubbo.rpc.*;
 
 import java.util.List;
 
@@ -61,7 +55,9 @@ public class ProtocolFilterWrapper implements Protocol {
         // 倒序循环 Filter ，创建带 Filter 链的 Invoker 对象
         if (!filters.isEmpty()) {
 
-            //嵌套声明匿名类循环调用的方式，所以要倒序。通过这样的方式，实际过滤的顺序，还是正序
+            /**
+             * Filter是singleton，Invoker是scope
+             */
             for (int i = filters.size() - 1; i >= 0; i--) {
                 final Filter filter = filters.get(i);
                 final Invoker<T> next = last;

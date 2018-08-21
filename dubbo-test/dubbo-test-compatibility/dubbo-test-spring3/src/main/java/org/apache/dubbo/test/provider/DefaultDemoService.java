@@ -33,8 +33,13 @@ import org.apache.dubbo.demo.DemoService;
 public class DefaultDemoService implements DemoService {
 
     @Override
+    public String sayHi(String name) {
+        return "DefaultDemoService - sayHi() : " + name;
+    }
+
+    @Override
     public String sayHello(String name) {
-        return "DefaultDemoService - sayHell() : " + name;
+        return "DefaultDemoService - sayHello() : " + name;
     }
 
 }

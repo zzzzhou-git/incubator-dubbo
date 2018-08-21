@@ -24,9 +24,10 @@ import org.apache.dubbo.common.extension.SPI;
  * Protocol 是服务域，它是 Invoker 暴露和引用的主功能入口。
  * 它负责 Invoker 的生命周期管理
  *
+ * SPI注解标识该接口是一个扩展点， 默认的拓展点是dubbo
+ *
  * Protocol. (API/SPI, Singleton, ThreadSafe)
  */
-//SPI注解标识该接口是一个扩展点， 默认的拓展点是dubbo
 @SPI("dubbo")
 public interface Protocol {
 

@@ -19,12 +19,7 @@ package org.apache.dubbo.rpc.protocol;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.ExtensionLoader;
-import org.apache.dubbo.rpc.Exporter;
-import org.apache.dubbo.rpc.ExporterListener;
-import org.apache.dubbo.rpc.Invoker;
-import org.apache.dubbo.rpc.InvokerListener;
-import org.apache.dubbo.rpc.Protocol;
-import org.apache.dubbo.rpc.RpcException;
+import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.listener.ListenerExporterWrapper;
 import org.apache.dubbo.rpc.listener.ListenerInvokerWrapper;
 
@@ -49,11 +44,18 @@ public class ProtocolListenerWrapper implements Protocol {
         return protocol.getDefaultPort();
     }
 
+    /**
+     * @param invoker Service invoker 服务的执行体
+     * @param <T>
+     * @return
+     * @throws RpcException
+     */
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
         if (Constants.REGISTRY_PROTOCOL.equals(invoker.getUrl().getProtocol())) {
             return protocol.export(invoker);
         }
+
         return new ListenerExporterWrapper<T>(protocol.export(invoker),
                 Collections.unmodifiableList(ExtensionLoader.getExtensionLoader(ExporterListener.class)
                         .getActivateExtension(invoker.getUrl(), Constants.EXPORTER_LISTENER_KEY)));
@@ -64,6 +66,16 @@ public class ProtocolListenerWrapper implements Protocol {
         if (Constants.REGISTRY_PROTOCOL.equals(url.getProtocol())) {
             return protocol.refer(type, url);
         }
+
+        /**
+         * 1. 每次生成一个新的ListenerInvokerWrapper处理Listener逻辑，传入Invoker请求链
+         * 2. ListenerInvokerWrapper也是Invoker，这里返回的Invoker是最`前面`的Invoker，包含：
+         *      一个InvokerWrapper链，一个invoke方法，外部调用invoke方法时，继续调用InvokerWrapper；
+         *      排好序的listener
+         *
+         * 3. 在构造方法中传入protocol.refer(type, url)， refer继续向下执行，构造方法里面执行refer后的event
+         *
+         */
         return new ListenerInvokerWrapper<T>(protocol.refer(type, url),
                 Collections.unmodifiableList(
                         ExtensionLoader.getExtensionLoader(InvokerListener.class)

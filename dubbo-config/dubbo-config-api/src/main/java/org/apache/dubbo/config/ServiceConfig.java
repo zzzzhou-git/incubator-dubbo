@@ -58,6 +58,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private static final long serialVersionUID = 3033787999037024738L;
 
     //拓展点说明：https://blog.csdn.net/zhangw1236/article/details/65630952
+    /**
+     * 如果有Wrapper，getAdaptiveExtension获得的明显是Wrapper
+     */
     private static final Protocol protocol = ExtensionLoader.getExtensionLoader(Protocol.class).getAdaptiveExtension();
 
     private static final ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
@@ -558,6 +561,10 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 map.put("revision", revision);
             }
 
+            /**
+             * Service和ServiceImpl都被包装成Wrapper，缓存在WRAPPER_MAP中
+             * @see org.apache.dubbo.common.bytecode.Wrapper#WRAPPER_MAP
+             */
             String[] methods = Wrapper.getWrapper(interfaceClass).getMethodNames();
             if (methods.length == 0) {
                 logger.warn("NO method found in service interface " + interfaceClass.getName());
@@ -641,17 +648,37 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                             registryURL = registryURL.addParameter(Constants.PROXY_KEY, proxy);
                         }
 
-                        // 使用 ProxyFactory 创建 Invoker 对象
-                        // 这里创建的Invoker ，下一步会提交给 Protocol ，Protocol将 Invoker 转换成 Exporter
-                        //JavassistProxyFactory
+                        /**
+                         * 使用 ProxyFactory 创建 Invoker 对象，默认使用JavassistProxyFactory
+                         *
+                         * 1. 将ServiceImplWrapper进一步包装成AbstractProxyInvoker的一个实例
+                         * 2. 当调用Invoker的invoke方法时，调用doInvoke，再调用ServiceImpl的对应方法doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments)
+                         *
+                         * @see org.apache.dubbo.rpc.proxy.javassist.JavassistProxyFactory#getInvoker(Object, Class, URL)
+                         */
                         Invoker<?> invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(Constants.EXPORT_KEY, url.toFullString()));
 
-                        // 创建 DelegateProviderMetaDataInvoker 对象
-                        //该对象在 Invoker 对象的基础上，增加了当前服务提供者 ServiceConfig 对象
+                        /**
+                         * 创建 DelegateProviderMetaDataInvoker 对象
+                         *
+                         * 1. 该对象在 Invoker 对象的基础上，增加了当前服务提供者 ServiceConfig 对象，即Metadata
+                         * 2. WRAPPER_MAP.get(wrapperInvoker.getMetadata().ref.getClass().getName())可以得到ServiceImpl的Wrapper
+                         *
+                         * @see org.apache.dubbo.common.bytecode.Wrapper#WRAPPER_MAP
+                         */
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
 
-                        // 使用 Protocol 暴露 Invoker 对象
-                        //invoker 传入后，根据 invoker 中的 url.getProtocol() 自动获得对应 Protocol 拓展实现为 DubboProtocol
+                        /**
+                         * 使用 Protocol 暴露 Invoker 对象
+                         *
+                         * 1. invoker 传入后，根据 invoker 中的 url.getProtocol() 自动获得对应 Protocol 拓展实现为 DubboProtocol
+                         * 2. 由于dubbo实现了Wrapper自动包装，默认的，SPI服务Protocol有2个Wrapper：
+                         *      @see org.apache.dubbo.rpc.protocol.ProtocolFilterWrapper
+                         *      @see org.apache.dubbo.rpc.protocol.ProtocolListenerWrapper
+                         *    这些声明在org.apache.dubbo.rpc.Protocol这个配置文件中
+                         * 3. 因此export的流程是：
+                         *      ProtocolFilterWrapper#export -> ProtocolListenerWrapper#export -> DubboProtocol#export
+                         */
                         Exporter<?> exporter = protocol.export(wrapperInvoker);
 
                         // 添加到 `exporters`
