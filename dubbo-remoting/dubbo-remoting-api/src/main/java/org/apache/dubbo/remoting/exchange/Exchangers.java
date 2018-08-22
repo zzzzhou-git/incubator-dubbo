@@ -59,6 +59,14 @@ public class Exchangers {
         return bind(URL.valueOf(url), handler);
     }
 
+    /**
+     * @param url
+     * @param handler
+     * @return
+     * @throws RemotingException
+     * @see org.apache.dubbo.remoting.exchange.support.header.HeaderExchanger#bind(URL, ExchangeHandler)
+     * @see org.apache.dubbo.remoting.Transporters#bind(URL, ChannelHandler...)
+     */
     public static ExchangeServer bind(URL url, ExchangeHandler handler) throws RemotingException {
         if (url == null) {
             throw new IllegalArgumentException("url == null");
@@ -67,7 +75,14 @@ public class Exchangers {
             throw new IllegalArgumentException("handler == null");
         }
         url = url.addParameterIfAbsent(Constants.CODEC_KEY, "exchange");
-        return getExchanger(url).bind(url, handler);
+
+        //ExtensionLoader加载默认的Header Exchanger
+        Exchanger exchanger = getExchanger(url);
+
+        //Exchanger bind后生成ExchangServer（默认HeaderExchangeServer）
+        ExchangeServer exchangeServer = exchanger.bind(url, handler);
+
+        return exchangeServer;
     }
 
     public static ExchangeClient connect(String url) throws RemotingException {

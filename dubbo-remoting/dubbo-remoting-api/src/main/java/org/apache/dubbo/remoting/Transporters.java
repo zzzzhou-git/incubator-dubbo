@@ -40,6 +40,12 @@ public class Transporters {
         return bind(URL.valueOf(url), handler);
     }
 
+    /**
+     * @param url
+     * @param handlers
+     * @return
+     * @throws RemotingException
+     */
     public static Server bind(URL url, ChannelHandler... handlers) throws RemotingException {
         if (url == null) {
             throw new IllegalArgumentException("url == null");
@@ -53,6 +59,8 @@ public class Transporters {
         } else {
             handler = new ChannelHandlerDispatcher(handlers);
         }
+
+        //Transporter默认是netty
         return getTransporter().bind(url, handler);
     }
 

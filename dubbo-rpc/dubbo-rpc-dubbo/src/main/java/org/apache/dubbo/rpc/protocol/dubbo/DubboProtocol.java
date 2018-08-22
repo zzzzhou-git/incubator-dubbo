@@ -30,6 +30,7 @@ import org.apache.dubbo.remoting.RemotingException;
 import org.apache.dubbo.remoting.Transporter;
 import org.apache.dubbo.remoting.exchange.*;
 import org.apache.dubbo.remoting.exchange.support.ExchangeHandlerAdapter;
+import org.apache.dubbo.remoting.exchange.support.Replier;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.protocol.AbstractProtocol;
 
@@ -57,6 +58,8 @@ public class DubboProtocol extends AbstractProtocol {
     //consumer side export a stub service for dispatching event
     //servicekey-stubmethods
     private final ConcurrentMap<String, String> stubServiceMethodsMap = new ConcurrentHashMap<String, String>();
+
+
     private ExchangeHandler requestHandler = new ExchangeHandlerAdapter() {
 
         //当有消息到来时，进入received()方法后调用reply()方式进行回包
@@ -158,6 +161,7 @@ public class DubboProtocol extends AbstractProtocol {
             return invocation;
         }
     };
+    //end requestHandler
 
     public DubboProtocol() {
         INSTANCE = this;
@@ -249,11 +253,22 @@ public class DubboProtocol extends AbstractProtocol {
             }
         }
 
+        //开启server
         openServer(url);
         optimizeSerialization(url);
+
         return exporter;
     }
 
+    /**
+     * 如果serverMap为空，创建server
+     *
+     * @see org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol#serverMap
+     * @see org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol#createServer
+     * @see org.apache.dubbo.remoting.exchange.ExchangeServer
+     * @see org.apache.dubbo.remoting.exchange.Exchangers#bind(URL, Replier)
+     * @see org.apache.dubbo.remoting.exchange.support.header.HeaderExchanger
+     */
     private void openServer(URL url) {
         // find server.
         String key = url.getAddress();
@@ -302,6 +317,10 @@ public class DubboProtocol extends AbstractProtocol {
         return server;
     }
 
+    /**
+     * @param url
+     * @throws RpcException
+     */
     private void optimizeSerialization(URL url) throws RpcException {
         String className = url.getParameter(Constants.OPTIMIZER_KEY, "");
         if (StringUtils.isEmpty(className) || optimizers.contains(className)) {
