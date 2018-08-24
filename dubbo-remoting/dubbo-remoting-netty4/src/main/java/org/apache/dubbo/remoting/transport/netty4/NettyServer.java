@@ -68,6 +68,11 @@ public class NettyServer extends AbstractServer implements Server {
         );
     }
 
+    /**
+     * 终于到了Netty原生的逻辑
+     *
+     * @throws Throwable
+     */
     @Override
     protected void doOpen() throws Throwable {
         bootstrap = new ServerBootstrap();

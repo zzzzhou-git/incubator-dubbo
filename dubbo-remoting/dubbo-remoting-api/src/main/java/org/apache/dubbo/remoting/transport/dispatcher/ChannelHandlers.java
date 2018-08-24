@@ -43,6 +43,16 @@ public class ChannelHandlers {
         INSTANCE = instance;
     }
 
+    /**
+     * channelHandler的包装，最后的AllChannelHandler使用线程池派发任务
+     *
+     * @param handler
+     * @param url
+     * @return
+     * @see org.apache.dubbo.remoting.transport.MultiMessageHandler
+     * @see org.apache.dubbo.remoting.exchange.support.header.HeartbeatHandler
+     * @see org.apache.dubbo.remoting.transport.dispatcher.all.AllChannelHandler
+     */
     protected ChannelHandler wrapInternal(ChannelHandler handler, URL url) {
         return new MultiMessageHandler(new HeartbeatHandler(ExtensionLoader.getExtensionLoader(Dispatcher.class)
                 .getAdaptiveExtension().dispatch(handler, url)));

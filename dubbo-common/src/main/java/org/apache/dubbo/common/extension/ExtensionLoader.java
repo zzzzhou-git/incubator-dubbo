@@ -1074,9 +1074,9 @@ public class ExtensionLoader<T> {
      *              再调用ExtensionLoader.getExtensionLoader(org.apache.dubbo.rpc.cluster.Cluster.class).getExtension(extName)，获得具体的服务
      *              再调用该服务的该接口方法，完成调用链
      *
-     *  5. 对于URL的获取，要么参数有URL，要么传入参数对象中有URL
+     * 5. 对于URL的获取，要么参数有URL，要么传入参数对象中有URL
      *
-     *  6. URL贯穿整个项目，从URL中可以拿到某个拓展点名称，不管是默认名称，还是我们配置的名称，这是一个规定
+     * 6. URL贯穿整个项目，从URL中可以拿到某个拓展点名称，不管是默认名称，还是我们配置的名称，这是一个规定
      *
      * @return 自适应拓展类
      */

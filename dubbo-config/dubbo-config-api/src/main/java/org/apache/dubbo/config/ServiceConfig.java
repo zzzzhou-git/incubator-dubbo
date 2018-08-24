@@ -676,8 +676,28 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                          *      @see org.apache.dubbo.rpc.protocol.ProtocolFilterWrapper
                          *      @see org.apache.dubbo.rpc.protocol.ProtocolListenerWrapper
                          *    这些声明在org.apache.dubbo.rpc.Protocol这个配置文件中
-                         * 3. 因此export的流程是：
-                         *      ProtocolFilterWrapper#export -> ProtocolListenerWrapper#export -> DubboProtocol#export
+                         *
+                         * 3. 由于拿的是Registry的URL，因此export的流程是：
+                         *      Protocol$Adaptive => ProtocolFilterWrapper => ProtocolListenerWrapper => RegistryProtocol
+                         *
+                         *      =>
+                         *
+                         *      Protocol$Adaptive => ProtocolFilterWrapper => ProtocolListenerWrapper => DubboProtocol
+                         *
+                         * 4. 也就是说，这一条大的调用链，包含两条小的调用链, 原因是：
+                         *      首先，传入的是注册中心的 URL ，通过 Protocol$Adaptive 获取到的是 RegistryProtocol 对象；
+                         *      其次，RegistryProtocol 会在其 #export(...) 方法中，使用服务提供者的 URL ( 即注册中心的 URL 的 export 参数值)，
+                         *           再次调用 Protocol$Adaptive 获取到的是 DubboProtocol 对象，进行服务暴露
+                         *
+                         * 5. 这样一来，整个启动流程就是：
+                         *      RegistryProtocol#export(...) {
+                         *          // 1. 启动本地服务器
+                         *          DubboProtocol#export(...);
+                         *
+                         *          // 2. 向注册中心注册。
+                         *      }
+                         *
+                         * @see org.apache.dubbo.registry.integration.RegistryProtocol#export(Invoker)
                          */
                         Exporter<?> exporter = protocol.export(wrapperInvoker);
 

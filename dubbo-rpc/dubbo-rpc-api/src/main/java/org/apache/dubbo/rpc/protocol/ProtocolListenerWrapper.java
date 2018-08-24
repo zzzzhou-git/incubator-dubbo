@@ -68,8 +68,7 @@ public class ProtocolListenerWrapper implements Protocol {
         }
 
         /**
-         * 1. 每次生成一个新的ListenerInvokerWrapper处理Listener逻辑，传入Invoker请求链
-         * 2. ListenerInvokerWrapper也是Invoker，这里返回的Invoker是最`前面`的Invoker，包含：
+         * 1. ListenerInvokerWrapper也是Invoker，这里返回的Invoker是最`前面`的Invoker，包含：
          *      一个InvokerWrapper链，一个invoke方法，外部调用invoke方法时，继续调用InvokerWrapper；
          *      排好序的listener
          *

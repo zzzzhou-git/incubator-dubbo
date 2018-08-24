@@ -54,10 +54,6 @@ public class ProtocolFilterWrapper implements Protocol {
 
         // 倒序循环 Filter ，创建带 Filter 链的 Invoker 对象
         if (!filters.isEmpty()) {
-
-            /**
-             * Filter是singleton，Invoker是scope
-             */
             for (int i = filters.size() - 1; i >= 0; i--) {
                 final Filter filter = filters.get(i);
                 final Invoker<T> next = last;

@@ -16,12 +16,7 @@
  */
 package org.apache.dubbo.config.spring;
 
-import org.apache.dubbo.config.ApplicationConfig;
-import org.apache.dubbo.config.ConsumerConfig;
-import org.apache.dubbo.config.ModuleConfig;
-import org.apache.dubbo.config.MonitorConfig;
-import org.apache.dubbo.config.ReferenceConfig;
-import org.apache.dubbo.config.RegistryConfig;
+import org.apache.dubbo.config.*;
 import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.spring.extension.SpringExtensionFactory;
 import org.apache.dubbo.config.support.Parameter;
@@ -39,7 +34,10 @@ import java.util.Map;
 /**
  * ReferenceFactoryBean
  *
+ * 实现了 FactoryBean， ReferenceBean实际上是一个工厂Bean, 当调用FactoryBean的getObject方法时，调用ReferenceConfig的get方法，返回reference的Proxy单例对象
+ *
  * @export
+ * @see ReferenceConfig#get()
  */
 public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean, ApplicationContextAware, InitializingBean, DisposableBean {
 

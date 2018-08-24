@@ -52,6 +52,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
             return invoker.equals(args[0]);
         }
 
+        //Invocation封装
         RpcInvocation invocation;
         if (RpcUtils.hasGeneratedFuture(method)) {
             Class<?> clazz = method.getDeclaringClass();
@@ -67,6 +68,12 @@ public class InvokerInvocationHandler implements InvocationHandler {
                 invocation.setAttachment(Constants.ASYNC_KEY, "true");
             }
         }
+
+        /**
+         * 一系列的Fileter
+         *
+         * @see org.apache.dubbo.rpc.protocol.dubbo.DubboInvoker#doInvoke
+         */
         return invoker.invoke(invocation).recreate();
     }
 
