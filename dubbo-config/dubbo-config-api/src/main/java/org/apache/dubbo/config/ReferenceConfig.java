@@ -30,11 +30,9 @@ import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.model.ApplicationModel;
 import org.apache.dubbo.config.model.ConsumerModel;
 import org.apache.dubbo.config.support.Parameter;
-import org.apache.dubbo.rpc.Invoker;
-import org.apache.dubbo.rpc.Protocol;
-import org.apache.dubbo.rpc.ProxyFactory;
-import org.apache.dubbo.rpc.StaticContext;
+import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.Cluster;
+import org.apache.dubbo.rpc.cluster.LoadBalance;
 import org.apache.dubbo.rpc.cluster.directory.StaticDirectory;
 import org.apache.dubbo.rpc.cluster.support.AvailableCluster;
 import org.apache.dubbo.rpc.cluster.support.ClusterUtils;
@@ -510,8 +508,16 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
 
             /**
              * 获得对应的Invoker
+             *
+             * <p>refer请求的实际调用链是： Registry$Adaptive -> ProtocolFilterWrapper -> ProtocolListenerWrapper -> RegistryProtocol
+             *
+             * <p>生成的invoker是：
+             *    MockClusterInvoker -> FailoverClusterInvoker
+             *
+             * @see org.apache.dubbo.rpc.cluster.support.wrapper.MockClusterInvoker#invoke(Invocation)
+             * @see org.apache.dubbo.rpc.cluster.support.FailoverClusterInvoker#doInvoke(Invocation, List, LoadBalance)
              */
-            //获得对应的Invoker
+            // 获得对应的Invoker
             if (urls.size() == 1) {
                 invoker = refprotocol.refer(interfaceClass, urls.get(0));
             } else {
@@ -550,8 +556,11 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         }
 
         /**
+         * 1. 使用javassistProxyFactory生成一个特定的proxy，proxy实现了ingerfaceClass接口，缓存了Invoker
+         *      @see org.apache.dubbo.rpc.proxy.javassist.JavassistProxyFactory#getProxy(Invoker, Class[])
          *
-         * dubbo的invoke handler
+         * 2.
+         *
          * @see org.apache.dubbo.rpc.proxy.InvokerInvocationHandler#invoke(Object, Method, Object[])
          */
         //根据Invoker获得对应的Proxy， 这个Proxy就是三方应用注入的真实instance
