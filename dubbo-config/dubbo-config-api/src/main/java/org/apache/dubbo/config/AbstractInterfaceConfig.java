@@ -609,5 +609,4 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     public void setScope(String scope) {
         this.scope = scope;
     }
-
 }
