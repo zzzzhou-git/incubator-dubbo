@@ -290,7 +290,9 @@ public class RegistryProtocol implements Protocol {
      * @param <T>
      * @return
      * @throws RpcException
-     * @see org.apache.dubbo.registry.zookeeper.ZookeeperRegistry
+     *
+     * @see org.apache.dubbo.registry.support.AbstractRegistryFactory#getRegistry(URL)
+     * @see org.apache.dubbo.registry.zookeeper.ZookeeperRegistry#ZookeeperRegistry
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -298,7 +300,11 @@ public class RegistryProtocol implements Protocol {
         // 获得真实的注册中心的 URL
         url = url.setProtocol(url.getParameter(Constants.REGISTRY_KEY, Constants.DEFAULT_REGISTRY)).removeParameter(Constants.REGISTRY_KEY);
 
-        // 获得注册中心
+        /*
+         * 获得注册中心
+         *
+         * 连接zookeeper
+         */
         Registry registry = registryFactory.getRegistry(url);
         if (RegistryService.class.equals(type)) {
             return proxyFactory.getInvoker((T) registry, type, url);

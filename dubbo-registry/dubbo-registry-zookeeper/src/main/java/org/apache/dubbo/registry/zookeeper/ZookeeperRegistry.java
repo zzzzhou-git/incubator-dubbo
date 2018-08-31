@@ -56,6 +56,13 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     private final ZookeeperClient zkClient;
 
+    /**
+     * 连接Zookeeper，使用重试策略
+     *
+     * @param url
+     * @param zookeeperTransporter
+     * @see org.apache.dubbo.remoting.zookeeper.curator.CuratorZookeeperClient#CuratorZookeeperClient(URL)
+     */
     public ZookeeperRegistry(URL url, ZookeeperTransporter zookeeperTransporter) {
         super(url);
         if (url.isAnyHost()) {

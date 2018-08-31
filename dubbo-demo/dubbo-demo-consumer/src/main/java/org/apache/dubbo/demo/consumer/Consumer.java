@@ -30,10 +30,15 @@ public class Consumer {
      * before running your application.
      *
      * @see org.apache.dubbo.rpc.proxy.InvokerInvocationHandler#invoke(Object, Method, Object[])
+     *
+     * @see org.apache.dubbo.rpc.cluster.loadbalance.RandomLoadBalance
+     *
      * @see org.apache.dubbo.rpc.protocol.dubbo.DubboInvoker#doInvoke(Invocation)
      * @see org.apache.dubbo.remoting.exchange.support.header.HeaderExchangeChannel#request(Object, int)
      * @see org.apache.dubbo.remoting.transport.AbstractClient#send(Object, boolean)
      * @see org.apache.dubbo.remoting.transport.netty4.NettyChannel#send(Object, boolean)
+     *
+     * see org.apache.dubbo.remoting.exchange.support.DefaultFuture#get(int)
      */
     public static void main(String[] args) {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"META-INF/spring/dubbo-demo-consumer.xml"});
@@ -45,16 +50,17 @@ public class Consumer {
 
         while (true) {
             try {
-                Thread.sleep(5000);
-                String hello = demoService.sayHello("world");
-                System.out.println(hello);
+                System.out.println(demoService.sayHello("world"));
+
                 /*String hi = testService.sayHi("hi");
                 System.out.println(hi);*/
+
+                Thread.sleep(5000);
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }
 
-            //break;
+            break;
         }
     }
 }

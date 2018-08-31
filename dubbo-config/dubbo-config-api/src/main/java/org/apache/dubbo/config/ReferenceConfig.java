@@ -435,7 +435,6 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         //attributes are stored by system context.
         StaticContext.getSystemContext().putAll(attributes);
 
-        //引用服务
         ref = createProxy(map);
         ConsumerModel consumerModel = new ConsumerModel(getUniqueServiceName(), this, ref, interfaceClass.getMethods());
         ApplicationModel.initConsumerModel(getUniqueServiceName(), consumerModel);
@@ -556,14 +555,15 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         }
 
         /**
-         * 1. 使用javassistProxyFactory生成一个特定的proxy，proxy实现了ingerfaceClass接口，缓存了Invoker
-         *      @see org.apache.dubbo.rpc.proxy.javassist.JavassistProxyFactory#getProxy(Invoker, Class[])
+         * 1. StubProxyFactoryWrapperProxyFactory的包装类
+         *      @see org.apache.dubbo.rpc.proxy.wrapper.StubProxyFactoryWrapper#getProxy(Invoker)
          *
-         * 2.
+         * 2. 使用javassistProxyFactory生成一个特定的proxy，proxy实现了ingerfaceClass接口，缓存了Invoker
+         *      @see org.apache.dubbo.rpc.proxy.javassist.JavassistProxyFactory#getProxy(Invoker, Class[])
+         *      @see org.apache.dubbo.common.bytecode.Proxy#getProxy(Class[])
          *
          * @see org.apache.dubbo.rpc.proxy.InvokerInvocationHandler#invoke(Object, Method, Object[])
          */
-        //根据Invoker获得对应的Proxy， 这个Proxy就是三方应用注入的真实instance
         // create service proxy
         return (T) proxyFactory.getProxy(invoker);
     }
